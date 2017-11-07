@@ -1,0 +1,56 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+    <title>
+        Create Memo
+    </title>
+
+    <head>
+        <!-- 'viewport' is used by bootstrap to respond to device size -->
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+        <!-- Javascript:  JQuery from a content distribution network (CDN) -->
+        <script
+            src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js">
+        </script>
+  
+        <!-- Bootstrap includes javascript and css  (must follow jquery) -->
+        <link rel="stylesheet"
+            href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+        <script
+            src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js">
+        </script>
+  
+        <!-- Our own style sheet -->
+        <link rel="stylesheet" href="/static/css/create.css" />
+    </head>
+
+    <body>
+        <!-- Docs: http://bootstrapdocs.com/v3.0.3/docs/css/#forms -->
+        <div class='date'>
+            <input type='date' class='date-picker'>
+        </div>
+        <div class='form'>
+            <textarea type='text' class="memo-text form-control"></textarea>
+        </div>
+        <div class='submit-class'>
+            <button type='submit' class="btn btn-default" id='submit'> Create </button>
+        </div>
+    </body>
+
+    <script>
+        $("#submit").click(function() {
+            var date = $(".date-picker").val();
+            var txt = $(".memo-text").val();
+
+            // Send data for memo, redirect back to html after submit is hit
+            $.getJSON("/create_handler", {"date": date, "text": txt}, function(data){
+                var redirect = data.result.redirect;
+
+                // Redirect back to main page (presumably index)
+                window.location.assign(redirect);
+            });
+        }
+
+        );
+    </script>
+</html>

@@ -13,3 +13,23 @@
 .attribution  {
     font-size: smaller;
 }
+
+.create-redirect {
+    margin-bottom: 1em;
+}
+
+.memo {
+    margin-left: 2em; 
+    margin-right: 2em;
+}
+.memo .delete-button {
+    margin-top: 1em; 
+    margin-bottom: 1em;
+}
+
+/* Border reference: https://www.w3schools.com/css/css_border.asp */
+.memo .col-md-10 {
+    border-style: solid; 
+    border-width: 1px;
+    border-color: lightgrey;
+}

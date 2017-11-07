@@ -38,9 +38,11 @@
 
 <h1>Memos</h1>
 
+<button class="create-redirect btn btn-default"> Create </button>
+
 {% if g.memos %}
     {% for memo in g.memos %}
-  <div class="memo">
+  <div class="memo"> 
   <div class="row">
   <div class="col-md-2">
     {{ memo.date | humanize }}
@@ -48,6 +50,9 @@
   <div class="col-md-10">
     {{ memo.text }}
   </div>
+  <!-- identify each memo by mongo id -->
+  <!-- Docs: http://bootstrapdocs.com/v3.0.3/docs/css/#forms -->
+  <button class='delete-button btn btn-default' value="{{memo.token}}"> Delete </button>
   </div> <!-- row -->
   </div> <!-- memo -->
   {% endfor %}
@@ -59,4 +64,26 @@
 
 </div> <!-- container -->
 </body>
+
+<script>
+  // On press of create button, redirect to creation page
+  $(".create-redirect").click(function() {
+    window.location.assign("/create");
+  });
+
+  $(".delete-button").click(function() {
+    // Send server the id of memo to be deleted from db. Handle with
+    // delete route. No response needed - div containing memo updated below.
+    // Reference on existence of attr(): https://stackoverflow.com/questions/3239598/how-can-i-get-the-id-of-an-element-using-jquery
+    $.getJSON("/delete", {"id": $(this).attr("value")});
+
+    // Remove all div elements up to div of class "memo". Then remove button
+    // Reference: https://api.jquery.com/parents/
+    $(this).parents(".memo").remove();
+    $(this).remove();
+  })
+
+
+</script>
+
 </html>

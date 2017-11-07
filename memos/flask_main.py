@@ -20,6 +20,7 @@ from flask import url_for
 
 import json
 import logging
+import random
 
 import sys
 
@@ -31,7 +32,11 @@ from dateutil import tz  # For interpreting local times
 from pymongo import MongoClient
 
 import config
-CONFIG = config.configuration()
+
+if __name__ == "__main__":
+    CONFIG = config.configuration()
+else:
+    CONFIG = config.configuration(proxied=True)
 
 
 MONGO_CLIENT_URL = "mongodb://{}:{}@{}:{}/{}".format(
@@ -59,7 +64,7 @@ app.secret_key = CONFIG.SECRET_KEY
 try: 
     dbclient = MongoClient(MONGO_CLIENT_URL)
     db = getattr(dbclient, CONFIG.DB)
-    collection = db.dated
+    collection = db.memos
 
 except:
     print("Failure opening database.  Is Mongo running? Correct password?")
@@ -82,10 +87,39 @@ def index():
 
 
 # We don't have an interface for creating memos yet
-# @app.route("/create")
-# def create():
-#     app.logger.debug("Create")
-#     return flask.render_template('create.html')
+@app.route("/create")
+def create():
+    app.logger.debug("Create")
+    return flask.render_template('create.html')
+
+
+# Handle requests to create new memos and add to db
+@app.route("/create_handler")
+def create_handler():
+    date          = flask.request.args.get('date')
+    txt           = flask.request.args.get('text')
+    redirect_json = {"redirect": "/index"}
+
+    # Insert into collection
+    collection.insert_one({
+        "type": "dated_memo",
+        "date": date,
+        "text": txt,
+        "token": random.randrange(1,1000000)
+    })
+
+    # Return to request the correct redirect
+    return flask.jsonify(result=redirect_json)
+
+
+# Handle deleting of memos from db
+@app.route("/delete")
+def delete():
+    delete_id = int(flask.request.args.get('id'))
+    # Use remove() for Pi compatibility, as delete_one was added in 3.0
+    collection.remove({'token': delete_id})
+
+    return flask.jsonify({})
 
 
 @app.errorhandler(404)
@@ -139,7 +173,11 @@ def get_memos():
         record['date'] = arrow.get(record['date']).isoformat()
         del record['_id']
         records.append(record)
-    return records 
+    
+    # Sort according to the date value of each "dictionary" x in results
+    sorted_records = sorted(records, key=lambda x: x['date'])
+    
+    return sorted_records 
 
 
 if __name__ == "__main__":
